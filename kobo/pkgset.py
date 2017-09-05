@@ -5,6 +5,7 @@ import os
 
 import kobo.rpmlib
 from kobo.shortcuts import compute_file_checksums, force_list
+import six
 
 
 __all__ = (
@@ -53,7 +54,7 @@ class FileWrapper(object):
         return result
 
     def __setstate__(self, value_dict):
-        for key, value in value_dict.iteritems():
+        for key, value in six.iteritems(value_dict):
             setattr(self, key, value)
 
     @property
@@ -229,16 +230,16 @@ class FileCache(object):
         self.file_cache[os.path.abspath(name)] = value
 
     def __iter__(self):
-        return self.file_cache.iterkeys()
+        return iter(self.file_cache)
 
     def __len__(self):
         return len(self.file_cache)
 
     def iteritems(self):
-        return self.file_cache.iteritems()
+        return six.iteritems(self.file_cache)
 
     def items(self):
-        return self.file_cache.items()
+        return list(self.file_cache.items())
 
     def add(self, file_path, file_wrapper_class=None, **kwargs):
         file_path = os.path.abspath(file_path)
@@ -257,7 +258,7 @@ class FileCache(object):
         return value
 
     def remove(self, file_path):
-        if type(file_path) not in (str, unicode):
+        if type(file_path) not in (str, six.text_type):
             file_obj = file_path
             file_path = file_obj.file_path
         else:
@@ -270,6 +271,6 @@ class FileCache(object):
 
     def remove_by_filenames(self, file_names):
         file_names = [ os.path.basename(i) for i in force_list(file_names) ]
-        for i in self.file_cache.keys():
+        for i in dict(self.file_cache):
             if os.path.basename(i) in file_names:
                 self.remove(i)

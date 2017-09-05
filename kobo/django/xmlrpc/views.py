@@ -30,6 +30,7 @@ All double underscores in method names will be replaced with dots:
 def task__create(request, ...): will be registered as task.create(...)
 """
 
+from __future__ import absolute_import
 import sys
 
 import django.db
@@ -114,7 +115,7 @@ class XMLRPCHandlerFactory(object):
 
             try:
                 module = __import__(module_name, {}, {}, [fn])
-            except ImportError, ex:
+            except ImportError as ex:
                 raise ImproperlyConfigured("Error registering XML-RPC method: module '%s' cannot be imported: %s" % (module_name, ex))
 
             try:
@@ -174,5 +175,5 @@ for var in ("XMLRPC_METHODS", ):
         raise ImproperlyConfigured("Variable '%s' not set in settings." % var)
 
 
-for i in settings.XMLRPC_METHODS.iterkeys():
+for i in settings.XMLRPC_METHODS:
     XMLRPCHandlerFactory(i)
