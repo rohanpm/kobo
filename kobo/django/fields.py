@@ -41,8 +41,6 @@ default value set to False.
 
 class StateEnumField(models.IntegerField):
     '''StateEnum DB encapsulation'''
-    __metaclass__ = models.SubfieldBase
-
 
     def __init__(self, state_machine, *args, **kwargs):
         super(StateEnumField, self).__init__(*args, **kwargs)
@@ -78,6 +76,8 @@ class StateEnumField(models.IntegerField):
         state_machine.set_state(state_machine.get_value(value))
         return state_machine
 
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def _get_choices(self):
         return tuple(self.state_machine.get_next_states_mapping(current=self.state_machine.get_state_id()))
@@ -136,7 +136,6 @@ class StateEnumField(models.IntegerField):
 
 class JSONField(models.TextField):
     """JSON field for storing a serialized dictionary or list."""
-    __metaclass__ = models.SubfieldBase
 
     def __init__(self, *args, **kwargs):
         self.human_readable = kwargs.pop('human_readable', False)
@@ -153,6 +152,9 @@ class JSONField(models.TextField):
             return json.loads(value)
         except ValueError:
             raise exceptions.ValidationError(_("Cannot deserialize JSON data. '%s'") % value)
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def get_db_prep_value(self, value, *args, **kwargs):
         if value is None or value == "null":
